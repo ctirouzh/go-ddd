@@ -1,1 +1,1 @@
-# go-ddd
+# **Domain Driven Design (DDD) in golang**
