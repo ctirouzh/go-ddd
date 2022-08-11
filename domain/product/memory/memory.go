@@ -9,14 +9,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type MemoryProductRepository struct {
+type productRepository struct {
 	products map[uuid.UUID]aggregate.Product
 	sync.Mutex
 }
 
 // New is a factory function to generate a new repository of customers
-func New() *MemoryProductRepository {
-	return &MemoryProductRepository{
+func New() *productRepository {
+	return &productRepository{
 		products: make(map[uuid.UUID]aggregate.Product),
 	}
 }
@@ -24,7 +24,7 @@ func New() *MemoryProductRepository {
 // GetAll returns all products as a slice
 // Yes, it never returns an error, but
 // A database implementation could return an error for instance
-func (mpr *MemoryProductRepository) GetAll() ([]aggregate.Product, error) {
+func (mpr *productRepository) GetAll() ([]aggregate.Product, error) {
 	// Collect all Products from map
 	var products []aggregate.Product
 	for _, product := range mpr.products {
@@ -34,7 +34,7 @@ func (mpr *MemoryProductRepository) GetAll() ([]aggregate.Product, error) {
 }
 
 // GetByID searches for a product based on it's ID
-func (mpr *MemoryProductRepository) GetByID(id uuid.UUID) (aggregate.Product, error) {
+func (mpr *productRepository) GetByID(id uuid.UUID) (aggregate.Product, error) {
 	if product, ok := mpr.products[uuid.UUID(id)]; ok {
 		return product, nil
 	}
@@ -42,7 +42,7 @@ func (mpr *MemoryProductRepository) GetByID(id uuid.UUID) (aggregate.Product, er
 }
 
 // Add will add a new product to the repository
-func (mpr *MemoryProductRepository) Add(newprod aggregate.Product) error {
+func (mpr *productRepository) Add(newprod aggregate.Product) error {
 	mpr.Lock()
 	defer mpr.Unlock()
 
@@ -56,7 +56,7 @@ func (mpr *MemoryProductRepository) Add(newprod aggregate.Product) error {
 }
 
 // Update will change all values for a product based on it's ID
-func (mpr *MemoryProductRepository) Update(upprod aggregate.Product) error {
+func (mpr *productRepository) Update(upprod aggregate.Product) error {
 	mpr.Lock()
 	defer mpr.Unlock()
 
@@ -69,7 +69,7 @@ func (mpr *MemoryProductRepository) Update(upprod aggregate.Product) error {
 }
 
 // Delete remove an product from the repository
-func (mpr *MemoryProductRepository) Delete(id uuid.UUID) error {
+func (mpr *productRepository) Delete(id uuid.UUID) error {
 	mpr.Lock()
 	defer mpr.Unlock()
 
