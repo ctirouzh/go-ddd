@@ -2,6 +2,8 @@
 package services
 
 import (
+	"log"
+
 	"github.com/ctirouzh/go-ddd/aggregate"
 	"github.com/ctirouzh/go-ddd/domain/customer"
 	"github.com/ctirouzh/go-ddd/domain/customer/memory"
@@ -70,15 +72,28 @@ func WithMemoryProductRepository(products []aggregate.Product) OrderConfiguratio
 }
 
 // CreateOrder will chaintogether all repositories to create a order for a customer
-func (o *OrderService) CreateOrder(customerID uuid.UUID, productIDs []uuid.UUID) error {
+// will return the collected price of all Products
+func (o *OrderService) CreateOrder(customerID uuid.UUID, productIDs []uuid.UUID) (float64, error) {
 	// Get the customer
 	c, err := o.customers.Get(customerID)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	c.GetID()
 
-	//TODO: Get each Product, Ouchie, We need a ProductRepository
+	// Get each Product, Ouchie, We need a ProductRepository
+	var products []aggregate.Product
+	var price float64
+	for _, id := range productIDs {
+		p, err := o.products.GetByID(id)
+		if err != nil {
+			return 0, err
+		}
+		products = append(products, p)
+		price += p.GetPrice()
+	}
 
-	return nil
+	// All Products exists in store, now we can create the order
+	log.Printf("Customer: %s has ordered %d products", c.GetID(), len(products))
+
+	return price, nil
 }
