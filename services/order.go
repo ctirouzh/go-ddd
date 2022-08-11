@@ -2,11 +2,13 @@
 package services
 
 import (
+	"context"
 	"log"
 
 	"github.com/ctirouzh/go-ddd/aggregate"
 	"github.com/ctirouzh/go-ddd/domain/customer"
 	"github.com/ctirouzh/go-ddd/domain/customer/memory"
+	"github.com/ctirouzh/go-ddd/domain/customer/mongo"
 	"github.com/ctirouzh/go-ddd/domain/product"
 	prodmemory "github.com/ctirouzh/go-ddd/domain/product/memory"
 	"github.com/google/uuid"
@@ -51,6 +53,18 @@ func WithMemoryCustomerRepository() OrderConfiguration {
 	// Create the memory repo, if we needed parameters, such as connection strings they could be inputted here
 	cr := memory.New()
 	return WithCustomerRepository(cr)
+}
+
+func WithMongoCustomerRepository(connectionString string) OrderConfiguration {
+	return func(os *OrderService) error {
+		// Create the mongo repo, if we needed parameters, such as connection strings they could be inputted here
+		cr, err := mongo.New(context.Background(), connectionString)
+		if err != nil {
+			return err
+		}
+		os.customers = cr
+		return nil
+	}
 }
 
 // WithMemoryProductRepository adds a in memory product repo and adds all input products
